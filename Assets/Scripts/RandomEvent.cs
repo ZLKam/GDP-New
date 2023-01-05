@@ -9,24 +9,9 @@ public class RandomEvent : MonoBehaviour
 
     public int rand;
 
-    // Start is called before the first frame update
-    void Start()
+    void Awake()
     {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        if (rand == 1)
-        {
-            randomEventText.gameObject.SetActive(true);
-            StartCoroutine(DisplayEventText());
-        }
-        else
-        {
-            randomEventText.gameObject.SetActive(false);
-        }
+        rand = Random.Range(0, 2);
     }
 
     IEnumerator DisplayEventText()
@@ -34,5 +19,11 @@ public class RandomEvent : MonoBehaviour
         yield return new WaitForSeconds(2);
         rand = 0;
         randomEventText.gameObject.SetActive(false);
+    }
+
+    public void DisplayEventTextFunction()
+    {
+        randomEventText.gameObject.SetActive(true);
+        StartCoroutine(DisplayEventText());
     }
 }
