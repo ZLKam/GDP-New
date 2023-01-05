@@ -7,12 +7,7 @@ public class RandomEvent : MonoBehaviour
 {
     public TextMeshProUGUI randomEventText;
 
-    public int rand;
-
-    void Awake()
-    {
-        rand = Random.Range(0, 2);
-    }
+    public float rand;
 
     IEnumerator DisplayEventText()
     {
@@ -23,7 +18,10 @@ public class RandomEvent : MonoBehaviour
 
     public void DisplayEventTextFunction()
     {
-        randomEventText.gameObject.SetActive(true);
-        StartCoroutine(DisplayEventText());
+        if (rand <= 0.5f)
+        {
+            randomEventText.gameObject.SetActive(true);
+            StartCoroutine(DisplayEventText());
+        }
     }
 }
