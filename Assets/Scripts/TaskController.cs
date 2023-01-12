@@ -61,9 +61,11 @@ public class TaskController : MonoBehaviour
         }
     }
 
-    private void DrawTaskHint(Vector2 playerPosition, Vector2 taskPosition, Color color)
+    private void DrawTaskHint(Vector3 playerPosition, Vector3 taskPosition, Color color)
     {
         GameObject line = new();
+        playerPosition.z = -5f;
+        taskPosition.z = -5f;
         line.transform.position = playerPosition;
         line.AddComponent<LineRenderer>();
         LineRenderer lineRenderer = line.GetComponent<LineRenderer>();

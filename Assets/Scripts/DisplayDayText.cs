@@ -13,12 +13,27 @@ public class DisplayDayText : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        if (SceneManager.GetActiveScene().name == "Day1 Outside")
+        //if (SceneManager.GetActiveScene().name == "Day1 Outside")
+        //{
+        //    dayText.text = "Day1 ...";
+        //    dayText.gameObject.SetActive(true);
+        //    StartCoroutine(ShowDayNumber());
+        //}
+        string sceneName = SceneManager.GetActiveScene().name;
+        switch (sceneName)
         {
-            dayText.text = "Day1 ...";
-            dayText.gameObject.SetActive(true);
-            StartCoroutine(ShowDayNumber());
+            case "Day1 Outside":
+                dayText.text = "Day 1 ...";
+                break;
+            case "Day1 Inside Level 1":
+                dayText.text = "Level 1 ...";
+                break;
+            case "Day1 Inside Level 2":
+                dayText.text = "Level 2 ...";
+                break;
         }
+        dayText.gameObject.SetActive(true);
+        StartCoroutine(ShowDayNumber());
     }
 
     IEnumerator ShowDayNumber()

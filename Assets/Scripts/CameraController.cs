@@ -38,11 +38,6 @@ public class CameraController : MonoBehaviour
 
         halfWidth = Camera.main.orthographicSize * Screen.width / Screen.height;
         halfHeight = Camera.main.orthographicSize;
-
-        //cameraLeftBorder = new(transform.position.x - Camera.main.orthographicSize * Screen.width / Screen.height, transform.position.y);
-        //cameraRightBorder = new(transform.position.x + Camera.main.orthographicSize * Screen.width / Screen.height, transform.position.y);
-        //cameraTopBorder = new(transform.position.x, transform.position.y + Camera.main.orthographicSize);
-        //cameraBottomBorder = new(transform.position.x, transform.position.y - Camera.main.orthographicSize);
     }
 
     // Update is called once per frame
@@ -55,12 +50,11 @@ public class CameraController : MonoBehaviour
 
     private void CheckBorder()
     {
-        RaycastHit2D leftCheck = Physics2D.Raycast(transform.position, Vector2.left, halfWidth, 11 << LayerMask.NameToLayer("Tasks"));
-        RaycastHit2D rightCheck = Physics2D.Raycast(transform.position, Vector2.right, halfWidth);
-        RaycastHit2D topCheck = Physics2D.Raycast(transform.position, Vector2.up, halfHeight);
-        RaycastHit2D bottomCheck = Physics2D.Raycast(transform.position, Vector2.down, halfHeight);
-
-        Debug.DrawRay(transform.position, Vector2.right * halfWidth);
+        int layerMask = 1 << 10;
+        RaycastHit2D leftCheck = Physics2D.Raycast(transform.position, Vector2.left, halfWidth, layerMask);
+        RaycastHit2D rightCheck = Physics2D.Raycast(transform.position, Vector2.right, halfWidth, layerMask);
+        RaycastHit2D topCheck = Physics2D.Raycast(transform.position, Vector2.up, halfHeight, layerMask);
+        RaycastHit2D bottomCheck = Physics2D.Raycast(transform.position, Vector2.down, halfHeight, layerMask);
 
         if (leftCheck.collider != null && leftCheck.collider.name == backgroundLeftBorder.name)
         {
@@ -78,17 +72,5 @@ public class CameraController : MonoBehaviour
         {
             transform.position = bottomCheck.transform.position + new Vector3(transform.position.x, halfHeight, 0) + cameraOffset;
         }
-        //if (cameraLeftBorder.x <= backgroundLeftBorder.transform.position.x ||
-        //    cameraRightBorder.x >= backgroundRightBorder.transform.position.x)
-        //{
-            
-        //    transform.position = new Vector3(cameraPreviousPosition.x, transform.position.y, -10f);
-        //}
-        //if (cameraTopBorder.y >= backgroundTopBorder.transform.position.y ||
-        //    cameraBottomBorder.y <= backgroundBottomBorder.transform.position.y)
-        //{
-        //    transform.position = new Vector3(transform.position.x, cameraPreviousPosition.y, -10f);
-        //}
-        //cameraPreviousPosition = transform.position;
     }
 }

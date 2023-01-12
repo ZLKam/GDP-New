@@ -5,13 +5,20 @@ using UnityEngine.UI;
 using TMPro;
 using UnityEngine.SceneManagement;
 
-public class InteractController : MonoBehaviour
+public class ChangeSceneController : MonoBehaviour
 {
     [Header("Player")]
     public GameObject player;
 
     [Header("Interact")]
     public Button interactButton;
+    
+    string currentScreen;
+
+    private void Start()
+    {
+        currentScreen = SceneManager.GetActiveScene().name;
+    }
 
     // Update is called once per frame
     void Update()
@@ -36,9 +43,22 @@ public class InteractController : MonoBehaviour
     {
         interactButton.gameObject.SetActive(false);
     }
-    
+
     private void InteractAction()
     {
-        SceneManager.LoadScene("Day1 Inside");
+        switch (currentScreen)
+        {
+            case "Day1 Outside":
+                SceneManager.LoadScene("Day1 Inside Level 1");
+                break;
+            case "Day1 Inside Level 1":
+                SceneManager.LoadScene("Day1 Inside Level 2");
+                break;
+            case "Day1 Inside Level 2":
+                break;
+            default:
+                Debug.Log("You faced an error!");
+                break;
+        }
     }
 }
