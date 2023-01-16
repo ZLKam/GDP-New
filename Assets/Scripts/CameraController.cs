@@ -48,6 +48,11 @@ public class CameraController : MonoBehaviour
         CheckBorder();
     }
 
+    private void LateUpdate()
+    {
+        CheckBorder();
+    }
+
     private void CheckBorder()
     {
         int layerMask = 1 << 10;

@@ -9,12 +9,12 @@ public class TaskController : MonoBehaviour
     [SerializeField] private List<string> tasks = new();
 
     public Transform player;
-    public Material hintMaterial;
     public TextMeshProUGUI taskHintText;
     public Button interactTaskButton;
 
     private Transform currentTask;
     private Collider2D currentTaskCollider;
+    private GameObject taskArrow;
 
     private bool inTask = false;
     private bool canBlink = true;
@@ -32,6 +32,7 @@ public class TaskController : MonoBehaviour
             tasks.Add(child.name);
             tasks.Sort();
         }
+        taskArrow = transform.Find("Task Arrow").GetComponent<SpriteRenderer>().gameObject;
     }
 
     // Update is called once per frame
@@ -41,7 +42,7 @@ public class TaskController : MonoBehaviour
         {
             currentTask = transform.Find(tasks[0]);
             currentTaskCollider = currentTask.gameObject.GetComponent<Collider2D>();
-            DrawTaskHint(player.position, currentTask.position, Color.yellow);
+            DrawTaskHint(player.position, currentTask.position);
             taskHintText.text = "Next Task:" + "\n" + currentTask.name;
 
             CheckPlayerInTask();
@@ -61,53 +62,78 @@ public class TaskController : MonoBehaviour
         }
     }
 
-    private void DrawTaskHint(Vector3 playerPosition, Vector3 taskPosition, Color color)
+    private void DrawTaskHint(Vector3 playerPosition, Vector3 taskPosition)
     {
-        GameObject line = new();
-        playerPosition.z = -5f;
-        taskPosition.z = -5f;
-        line.transform.position = playerPosition;
-        line.AddComponent<LineRenderer>();
-        LineRenderer lineRenderer = line.GetComponent<LineRenderer>();
-        lineRenderer.material = hintMaterial;
-        lineRenderer.startColor = color;
-        lineRenderer.endColor = color;
-        lineRenderer.startWidth = 0.05f;
-        lineRenderer.endWidth = 0.05f;
-        lineRenderer.SetPosition(0, playerPosition);
-        lineRenderer.SetPosition(1, taskPosition);
-        Destroy(line, 2 * Time.deltaTime);
+        taskArrow.GetComponent<SpriteRenderer>().enabled = true;
+        Vector3 offset = new(0, 1);
+        Vector3 directionToTask = taskPosition - playerPosition;
+
+        if (directionToTask.magnitude < 3f)
+        {
+            taskArrow.GetComponent<SpriteRenderer>().enabled = false;
+            return;
+        }
+        directionToTask.Normalize();
+        directionToTask *= 2f;
+
+        Vector3 endPoint = playerPosition + directionToTask;
+        taskArrow.transform.position = endPoint + offset;
+
+        endPoint = transform.TransformPoint(endPoint);
+        Vector3 rightAnglePoint = new(endPoint.x, playerPosition.y);
+        float oppositeLength = Mathf.Abs((endPoint - rightAnglePoint).magnitude);
+        float adjacentLength = Mathf.Abs((rightAnglePoint - playerPosition).magnitude);
+
+        float theta = Mathf.Atan(oppositeLength / adjacentLength) * 180 / Mathf.PI;
+        float xDirection = rightAnglePoint.x - playerPosition.x;
+        float yDirection = endPoint.y - rightAnglePoint.y;
+        if (xDirection > 0 && yDirection > 0)
+        {
+            taskArrow.transform.rotation = Quaternion.Euler(0, 0, theta);
+        }
+        else if (xDirection < 0 && yDirection > 0)
+        {
+            taskArrow.transform.rotation = Quaternion.Euler(0, 0, 180 - theta);
+        }
+        else if (xDirection < 0 && yDirection < 0)
+        {
+            taskArrow.transform.rotation = Quaternion.Euler(0, 0, 180 + theta);
+        }
+        else if (xDirection > 0 && yDirection < 0)
+        {
+            taskArrow.transform.rotation = Quaternion.Euler(0, 0, -theta);
+        }
+        
     }
 
     private void CheckPlayerInTask()
     {
-        if (!inTask)
-        {
-            if (currentTaskCollider.IsTouching(player.GetComponent<Collider2D>()))
-            {
-                inTask = true;
-                interactTaskButton.gameObject.SetActive(true);
-                interactTaskButton.onClick.RemoveAllListeners();
-                interactTaskButton.onClick.AddListener(DoTask);
-                randomEvent.rand = Random.Range(0f, 1f);
-                if (randomEvent.rand <= 0.5)
-                    randomEvent.DisplayEventTextFunction();
-            }
-            else
-            {
-                return;
-            }
-        }
+        //if (!inTask)
+        //{
+            //if (currentTaskCollider.IsTouching(player.GetComponent<Collider2D>()))
+            //{
+            //    inTask = true;
+            //    interactTaskButton.gameObject.SetActive(true);
+            //    interactTaskButton.onClick.RemoveAllListeners();
+            //    interactTaskButton.onClick.AddListener(DoTask);
+            //    randomEvent.rand = Random.Range(0f, 1f);
+            //    if (randomEvent.rand <= 0.5)
+            //        randomEvent.DisplayEventTextFunction();
+            //}
+            //else
+            //{
+            //    return;
+            //}
+        //}
         if (taskFinished == true)
         {
-            Debug.Log(currentTask.name);
             transform.Find(tasks[0]).gameObject.SetActive(false);
             tasks.Remove(tasks[0]);
             if (tasks.Count > 0)
                 transform.Find(tasks[0]).gameObject.SetActive(true);
             else
                 return;
-            inTask = false;
+            //inTask = false;
             taskFinished = false;
         }
     }
@@ -135,5 +161,18 @@ public class TaskController : MonoBehaviour
     {
         taskFinished = true;
         interactTaskButton.gameObject.SetActive(false);
+    }
+
+    private void OnTriggerStay2D(Collider2D collision)
+    {
+        if (collision.CompareTag("Player"))
+        {
+            interactTaskButton.gameObject.SetActive(true);
+            interactTaskButton.onClick.RemoveAllListeners();
+            interactTaskButton.onClick.AddListener(DoTask);
+            randomEvent.rand = Random.Range(0f, 1f);
+            if (randomEvent.rand <= 0.5)
+                randomEvent.DisplayEventTextFunction();
+        }
     }
 }
