@@ -20,22 +20,22 @@ public class ChangeSceneController : MonoBehaviour
         currentScreen = SceneManager.GetActiveScene().name;
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        if (interactButton.gameObject.activeSelf == true)
-        {
-            interactButton.onClick.RemoveAllListeners();
-            interactButton.onClick.AddListener(InteractAction);
-        }
-    }
-
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision.CompareTag("Player") && gameObject.CompareTag("Entrance"))
         {
+            if (currentScreen == "Day1 Inside Level 1")
+            {
+                interactButton.GetComponentInChildren<TextMeshProUGUI>().text = "Exit";
+                interactButton.gameObject.SetActive(true);
+                interactButton.onClick.RemoveAllListeners();
+                interactButton.onClick.AddListener(ExitScene);
+                return;
+            }
             interactButton.GetComponentInChildren<TextMeshProUGUI>().text = "Enter";
             interactButton.gameObject.SetActive(true);
+            interactButton.onClick.RemoveAllListeners();
+            interactButton.onClick.AddListener(InteractAction);
         }
     }
 
@@ -60,5 +60,10 @@ public class ChangeSceneController : MonoBehaviour
                 Debug.Log("You faced an error!");
                 break;
         }
+    }
+
+    private void ExitScene()
+    {
+        SceneManager.LoadScene("Day1 Outside");
     }
 }

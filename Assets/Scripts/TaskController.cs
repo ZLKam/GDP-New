@@ -16,7 +16,6 @@ public class TaskController : MonoBehaviour
     private Collider2D currentTaskCollider;
     private GameObject taskArrow;
 
-    private bool inTask = false;
     private bool canBlink = true;
     private bool showedCompletedText = false;
     private bool taskFinished = false;
@@ -29,6 +28,8 @@ public class TaskController : MonoBehaviour
         randomEvent = GetComponent<RandomEvent>();
         foreach (Transform child in transform)
         {
+            if (child.name == "Task Arrow")
+                continue;
             tasks.Add(child.name);
             tasks.Sort();
         }
@@ -45,6 +46,7 @@ public class TaskController : MonoBehaviour
             DrawTaskHint(player.position, currentTask.position);
             taskHintText.text = "Next Task:" + "\n" + currentTask.name;
 
+            CheckCollision();
             CheckPlayerInTask();
         }
         else
@@ -108,23 +110,6 @@ public class TaskController : MonoBehaviour
 
     private void CheckPlayerInTask()
     {
-        //if (!inTask)
-        //{
-            //if (currentTaskCollider.IsTouching(player.GetComponent<Collider2D>()))
-            //{
-            //    inTask = true;
-            //    interactTaskButton.gameObject.SetActive(true);
-            //    interactTaskButton.onClick.RemoveAllListeners();
-            //    interactTaskButton.onClick.AddListener(DoTask);
-            //    randomEvent.rand = Random.Range(0f, 1f);
-            //    if (randomEvent.rand <= 0.5)
-            //        randomEvent.DisplayEventTextFunction();
-            //}
-            //else
-            //{
-            //    return;
-            //}
-        //}
         if (taskFinished == true)
         {
             transform.Find(tasks[0]).gameObject.SetActive(false);
@@ -133,7 +118,6 @@ public class TaskController : MonoBehaviour
                 transform.Find(tasks[0]).gameObject.SetActive(true);
             else
                 return;
-            //inTask = false;
             taskFinished = false;
         }
     }
@@ -157,22 +141,23 @@ public class TaskController : MonoBehaviour
         taskHintText.text = null;
     }
 
-    private void DoTask()
+    private void CheckCollision()
     {
-        taskFinished = true;
-        interactTaskButton.gameObject.SetActive(false);
-    }
-
-    private void OnTriggerStay2D(Collider2D collision)
-    {
-        if (collision.CompareTag("Player"))
+        if (currentTaskCollider.IsTouching(player.GetComponent<Collider2D>()))
         {
             interactTaskButton.gameObject.SetActive(true);
             interactTaskButton.onClick.RemoveAllListeners();
             interactTaskButton.onClick.AddListener(DoTask);
-            randomEvent.rand = Random.Range(0f, 1f);
-            if (randomEvent.rand <= 0.5)
-                randomEvent.DisplayEventTextFunction();
         }
+        else
+        {
+            interactTaskButton.gameObject.SetActive(false);
+        }
+    }
+
+    private void DoTask()
+    {
+        taskFinished = true;
+        interactTaskButton.gameObject.SetActive(false);
     }
 }
