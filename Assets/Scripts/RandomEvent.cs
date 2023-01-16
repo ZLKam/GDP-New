@@ -20,6 +20,7 @@ public class RandomEvent : MonoBehaviour
     {
         if (rand <= 0.5f)
         {
+            //randomEventText.text = "";
             randomEventText.gameObject.SetActive(true);
             StartCoroutine(DisplayEventText());
         }

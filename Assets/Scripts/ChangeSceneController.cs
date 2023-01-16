@@ -14,6 +14,8 @@ public class ChangeSceneController : MonoBehaviour
     public Button interactButton;
     
     string currentScreen;
+    
+    public static bool touchingDoor = false;
 
     private void Start()
     {
@@ -24,6 +26,7 @@ public class ChangeSceneController : MonoBehaviour
     {
         if (collision.CompareTag("Player") && gameObject.CompareTag("Entrance"))
         {
+            touchingDoor = true;
             if (currentScreen == "Day1 Inside Level 1")
             {
                 interactButton.GetComponentInChildren<TextMeshProUGUI>().text = "Exit";
@@ -41,6 +44,7 @@ public class ChangeSceneController : MonoBehaviour
 
     private void OnTriggerExit2D(Collider2D collision)
     {
+        touchingDoor = false;
         interactButton.gameObject.SetActive(false);
     }
 

@@ -16,7 +16,7 @@ public class TaskController : MonoBehaviour
     private Collider2D currentTaskCollider;
     private GameObject taskArrow;
 
-    private bool canBlink = true;
+    private bool enteredTaskBefore = false;
     private bool showedCompletedText = false;
     private bool taskFinished = false;
 
@@ -31,7 +31,6 @@ public class TaskController : MonoBehaviour
             if (child.name == "Task Arrow")
                 continue;
             tasks.Add(child.name);
-            tasks.Sort();
         }
         taskArrow = transform.Find("Task Arrow").GetComponent<SpriteRenderer>().gameObject;
     }
@@ -55,13 +54,12 @@ public class TaskController : MonoBehaviour
             {
                 StartCoroutine(TaskHintTextCoroutine());
             }
+            interactTaskButton.gameObject.SetActive(false);
             Debug.Log("all tasks completed");
         }
 
-        if (canBlink)
-        {
-            StartCoroutine(HintBlinkEffect());
-        }
+        SpriteRenderer spriteRenderer = currentTask.GetComponent<SpriteRenderer>();
+        spriteRenderer.enabled = true;
     }
 
     private void DrawTaskHint(Vector3 playerPosition, Vector3 taskPosition)
@@ -119,25 +117,15 @@ public class TaskController : MonoBehaviour
             else
                 return;
             taskFinished = false;
+            enteredTaskBefore = false;
         }
-    }
-
-    IEnumerator HintBlinkEffect()
-    {
-        SpriteRenderer spriteRenderer = currentTask.GetComponent<SpriteRenderer>();
-        canBlink = false;
-        spriteRenderer.enabled = true;
-        yield return new WaitForSeconds(1f);
-        spriteRenderer.enabled = false;
-        yield return new WaitForSeconds(2f);
-        canBlink = true;
     }
 
     IEnumerator TaskHintTextCoroutine()
     {
         taskHintText.text = "You had completed all tasks!";
         showedCompletedText = true;
-        yield return new WaitForSeconds(3f);
+        yield return new WaitForSeconds(5f);
         taskHintText.text = null;
     }
 
@@ -148,9 +136,18 @@ public class TaskController : MonoBehaviour
             interactTaskButton.gameObject.SetActive(true);
             interactTaskButton.onClick.RemoveAllListeners();
             interactTaskButton.onClick.AddListener(DoTask);
+            
+            if (!enteredTaskBefore)
+            {
+                randomEvent.rand = Random.Range(0f, 1f);
+                randomEvent.DisplayEventTextFunction();
+                enteredTaskBefore = true;
+            }
         }
         else
         {
+            if (ChangeSceneController.touchingDoor)
+                return;
             interactTaskButton.gameObject.SetActive(false);
         }
     }
