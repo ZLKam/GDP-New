@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using taskProgress;
+using HeatChecks;
 
 public class TaskController : MonoBehaviour
 {
@@ -11,6 +13,7 @@ public class TaskController : MonoBehaviour
     public Transform player;
     public TextMeshProUGUI taskHintText;
     public Button interactTaskButton;
+    public GameObject joystick;
 
     private Transform currentTask;
     private Collider2D currentTaskCollider;
@@ -19,12 +22,14 @@ public class TaskController : MonoBehaviour
     private bool enteredTaskBefore = false;
     private bool showedCompletedText = false;
     private bool taskFinished = false;
+    private bool inProgress = false;
 
     RandomEvent randomEvent;
 
     // Start is called before the first frame update
     void Start()
     {
+        interactTaskButton.gameObject.SetActive(false);
         randomEvent = GetComponent<RandomEvent>();
         foreach (Transform child in transform)
         {
@@ -46,6 +51,16 @@ public class TaskController : MonoBehaviour
             taskHintText.text = "Next Task:" + "\n" + currentTask.name;
 
             CheckCollision();
+            if (inProgress)
+            {
+                joystick.gameObject.SetActive(false);
+                if (taskProgress.TaskProgress.taskCurrent >= taskProgress.TaskProgress.taskMaximum)
+                {
+                    inProgress = false;
+                    taskFinished = true;
+                    taskProgress.TaskProgress.taskProgressBar.SetActive(false);
+                }
+            }
             CheckPlayerInTask();
         }
         else
@@ -60,6 +75,29 @@ public class TaskController : MonoBehaviour
 
         SpriteRenderer spriteRenderer = currentTask.GetComponent<SpriteRenderer>();
         spriteRenderer.enabled = true;
+    }
+
+    private void FixedUpdate()
+    {
+        if (inProgress)
+        {
+            taskProgress.TaskProgress.taskCurrent += 0.5f;
+            taskProgress.TaskProgress.heatCurrent += 0.5f;
+        }
+        if (HeatChecks.HeatManager.airconOpen) 
+        {
+            taskProgress.TaskProgress.heatCurrent -= 0.8f;
+            taskProgress.TaskProgress.CO2Current += 0.5f;
+        }
+        if (HeatChecks.HeatManager.fanOpen)
+        {
+            taskProgress.TaskProgress.heatCurrent -= 0.5f;
+            taskProgress.TaskProgress.CO2Current += 0.1f;
+        }
+        if (HeatChecks.HeatManager.windowOpen)
+        {
+            taskProgress.TaskProgress.heatCurrent -= 0.1f;
+        }
     }
 
     private void DrawTaskHint(Vector3 playerPosition, Vector3 taskPosition)
@@ -118,6 +156,7 @@ public class TaskController : MonoBehaviour
                 return;
             taskFinished = false;
             enteredTaskBefore = false;
+            joystick.gameObject.SetActive(true);
         }
     }
 
@@ -131,8 +170,9 @@ public class TaskController : MonoBehaviour
 
     private void CheckCollision()
     {
-        if (currentTaskCollider.IsTouching(player.GetComponent<Collider2D>()))
+        if (currentTaskCollider.IsTouching(player.GetComponent<Collider2D>()) && !inProgress)
         {
+            interactTaskButton.GetComponentInChildren<TextMeshProUGUI>().text = "Do Task";
             interactTaskButton.gameObject.SetActive(true);
             interactTaskButton.onClick.RemoveAllListeners();
             interactTaskButton.onClick.AddListener(DoTask);
@@ -154,7 +194,8 @@ public class TaskController : MonoBehaviour
 
     private void DoTask()
     {
-        taskFinished = true;
         interactTaskButton.gameObject.SetActive(false);
+        taskProgress.TaskProgress.taskProgressBar.SetActive(true);
+        inProgress = true;
     }
 }

@@ -13,8 +13,8 @@ EditorBuildSettings:
     guid: 2cda990e2423bbf4892e6590ba056729
   - enabled: 1
     path: Assets/Scenes/Day1 Inside Level 1.unity
-    guid: 605bfef329cd5cb4ca6ea9af243c0f3e
+    guid: afe443afb580a2b4d8c23386f4c85b92
   - enabled: 1
-    path: Assets/Scenes/Day1 Inside Level 2.unity
-    guid: 92ac83dc0db83004a9f1434cf74630f4
+    path: Assets/Scenes/Workplace.unity
+    guid: 605bfef329cd5cb4ca6ea9af243c0f3e
   m_configObjects: {}

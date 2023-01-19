@@ -17,6 +17,8 @@ public class ChangeSceneController : MonoBehaviour
     
     public static bool touchingDoor = false;
 
+    private bool work = false;
+
     private void Start()
     {
         currentScreen = SceneManager.GetActiveScene().name;
@@ -27,24 +29,30 @@ public class ChangeSceneController : MonoBehaviour
         if (collision.CompareTag("Player") && gameObject.CompareTag("Entrance"))
         {
             touchingDoor = true;
-            if (currentScreen == "Day1 Inside Level 1")
+            if (currentScreen == "Workplace")
             {
                 interactButton.GetComponentInChildren<TextMeshProUGUI>().text = "Exit";
-                interactButton.gameObject.SetActive(true);
-                interactButton.onClick.RemoveAllListeners();
-                interactButton.onClick.AddListener(ExitScene);
-                return;
             }
-            interactButton.GetComponentInChildren<TextMeshProUGUI>().text = "Enter";
+            else
+                interactButton.GetComponentInChildren<TextMeshProUGUI>().text = "Enter";
             interactButton.gameObject.SetActive(true);
             interactButton.onClick.RemoveAllListeners();
             interactButton.onClick.AddListener(InteractAction);
+        }
+        else if (collision.CompareTag("Player") && gameObject.CompareTag("Work Entrance"))
+        {
+            work = true;
+            interactButton.GetComponentInChildren<TextMeshProUGUI>().text = "Enter";
+            interactButton.gameObject.SetActive(true);
+            interactButton.onClick.RemoveAllListeners();
+            interactButton.onClick.AddListener(EnterWork);
         }
     }
 
     private void OnTriggerExit2D(Collider2D collision)
     {
         touchingDoor = false;
+        work = false;
         interactButton.gameObject.SetActive(false);
     }
 
@@ -55,10 +63,8 @@ public class ChangeSceneController : MonoBehaviour
             case "Day1 Outside":
                 SceneManager.LoadScene("Day1 Inside Level 1");
                 break;
-            case "Day1 Inside Level 1":
-                SceneManager.LoadScene("Day1 Inside Level 2");
-                break;
-            case "Day1 Inside Level 2":
+            case "Workplace":
+                SceneManager.LoadScene("Day1 Outside");
                 break;
             default:
                 Debug.Log("You faced an error!");
@@ -66,8 +72,11 @@ public class ChangeSceneController : MonoBehaviour
         }
     }
 
-    private void ExitScene()
+    private void EnterWork() 
     {
-        SceneManager.LoadScene("Day1 Outside");
+        if (work) 
+        {
+            SceneManager.LoadScene("Workplace");
+        }
     }
 }
